@@ -52,3 +52,11 @@ class DBStorage:
             key = "{}.{}".format(row.__class__.__name__)
             items[key] = row
         return items
+    
+    def new(self, obj):
+        self.__session.add(obj)
+        self.save()
+
+    def save(self):
+        self.__session.commit()    
+
