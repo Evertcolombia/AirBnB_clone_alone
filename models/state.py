@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """ State Module for HBNB project """
 from models.base_model import BaseModel, Base
-from modesl.city import City
+from models.city import City
 from sqlalchemy import Column, String, Integer
 from sqlalchemy.orm import relationship
 import os
@@ -25,6 +25,3 @@ class State(BaseModel, Base):
                 if el.state_id == self.id:
                     city_list.append(el)
             return city_list
-            
-
-

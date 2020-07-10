@@ -2,8 +2,8 @@
 """ Console Module """
 import cmd
 import sys
-from models.base_model import BaseModel
-from models.__init__ import storage
+from models import storage
+from models.base_model import BaseModel, Base
 from models.user import User
 from models.place import Place
 from models.state import State
@@ -122,7 +122,8 @@ class HBNBCommand(cmd.Cmd):
         elif pairs[0] not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        new_instance = HBNBCommand.classes[pairs[0]]()
+        #new_instance = HBNBCommand.classes[pairs[0]]()
+        new_instance = eval("{}()".format(pairs[0]))
         for el in pairs[1:]:
             key = el.split('=')[0]
             val = el.split('=')[1]
@@ -134,9 +135,8 @@ class HBNBCommand(cmd.Cmd):
             else:
                 val = int(val)
             setattr(new_instance, key, val)
-        storage.save()
         print(new_instance.id)
-        storage.save()
+        new_instance.save()
 
     def help_create(self):
         """ Help information for the create method """
@@ -212,20 +212,22 @@ class HBNBCommand(cmd.Cmd):
     def do_all(self, args):
         """ Shows all objects, or all objects of a class"""
         print_list = []
+        objects = storage.all(args)
+        if not args:
+            for key in objects:
+                print_list.append(objects[key])
+            print(print_list)
+            return
 
-        if args:
+        else:
             args = args.split(' ')[0]  # remove possible trailing args
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage._FileStorage__objects.items():
-                if k.split('.')[0] == args:
-                    print_list.append(str(v))
-        else:
-            for k, v in storage._FileStorage__objects.items():
-                print_list.append(str(v))
-
-        print(print_list)
+            for key in objects:
+                if key.split('.')[0] == args:
+                    print_list.append(objects[key])
+            print(print_list[0].__dict__)
 
     def help_all(self):
         """ Help information for the all command """

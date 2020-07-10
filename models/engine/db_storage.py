@@ -1,5 +1,13 @@
+#usr/bin/python3
+from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy import create_engine, MetaData
 from models.base_model import BaseModel, Base
-from sqlalchemy import create_engine
+from models.place import Place
+from models.review import Review
+from models.user import User
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
 import os
 
 
@@ -9,15 +17,18 @@ class DBStorage:
     __session = None
 
     def __init__(self):
-
+        """ Create a conection pipe and store in __engine
+            use the environ variable to get that cnnection
+        """
         self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.format(
-            os.environ.get(HBNB_MYSQL_USER),
-            os.environ.get(HBNB_MYSQL_PWD),
-            os.environ.get(HBNB_MYSQL_HOST),
-            os.environ.get(HBNB_MYSQL_DB)),
-            pool_pre_ping = True)
+            os.environ.get("HBNB_MYSQL_USER"),
+            os.environ.get("HBNB_MYSQL_PWD"),
+            os.environ.get("HBNB_MYSQL_HOST"),
+            os.environ.get("HBNB_MYSQL_DB")),
+            pool_pre_ping=True)
 
-        if os.environ.get("HBNB_ENV") == 'test'
+        # if enviomenr is fort test deletes alss data Base mappers
+        if os.environ.get("HBNB_ENV") == 'test':
             Base.drop_all(bind=self.__engine)
 
 
@@ -34,12 +45,10 @@ class DBStorage:
 
         if cls:
             items = self.retrieve_items(aux_classes, cls)
-            #for row in self.__session.query(aux_classes[cls])
-                #key = "{}.{}".format(row.__class__.__name__, row.id)
-                    #items[key] = row
         else:
             for cl in aux_classes:
                 items += self.retrieve_items(aux_classes, cl)
+            print(items)
                 #for row in self.session.query(aux_classes[cl]):
                     #key = "{}.{}".format(row.__class__.name__, row.id)
                     #items[key] = row
@@ -47,16 +56,35 @@ class DBStorage:
 
 
     def retrieve_items(self, aux_classes, cls):
+        """" Retrieve items from specific row on table db"""
         items = {}
         for row in self.__session.query(aux_classes[cls]):
-            key = "{}.{}".format(row.__class__.__name__)
+            key = "{}.{}".format(row.__class__.__name__, row.id)
             items[key] = row
         return items
     
     def new(self, obj):
+        """ Create new objer row on db """
         self.__session.add(obj)
+        print("added")
         self.save()
 
     def save(self):
-        self.__session.commit()    
+        """ sabe session objects on db"""
+        self.__session.commit()
+        print(commited)
 
+    def delete(self, obj=None):
+        """ deletes an object to db"""
+        if obj:
+            self.__session.delete(obj)
+            self.save()
+
+    def reload(self):
+        """ reload data and get Session """
+        # create all tables in the db
+        Base.metadata.create_all(bind=self.__engine)
+        # create current db session from engine
+        Session = scoped_session(sessionmaker(bind=self.__engine, expire_on_commit=False))
+
+        self.__session = Session()
