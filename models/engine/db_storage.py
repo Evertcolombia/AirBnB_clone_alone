@@ -66,13 +66,11 @@ class DBStorage:
     def new(self, obj):
         """ Create new objer row on db """
         self.__session.add(obj)
-        print("added")
         self.save()
 
     def save(self):
         """ sabe session objects on db"""
         self.__session.commit()
-        print(commited)
 
     def delete(self, obj=None):
         """ deletes an object to db"""
