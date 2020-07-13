@@ -216,7 +216,8 @@ class HBNBCommand(cmd.Cmd):
         if not args:
             for key in objects:
                 print_list.append(objects[key])
-            print(print_list)
+            for el in  print_list:
+                print(el)
             return
 
         else:

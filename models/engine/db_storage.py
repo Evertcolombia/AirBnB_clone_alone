@@ -46,12 +46,10 @@ class DBStorage:
         if cls:
             items = self.retrieve_items(aux_classes, cls)
         else:
+            elements = {}
             for cl in aux_classes:
-                items += self.retrieve_items(aux_classes, cl)
-            print(items)
-                #for row in self.session.query(aux_classes[cl]):
-                    #key = "{}.{}".format(row.__class__.name__, row.id)
-                    #items[key] = row
+                elements = self.retrieve_items(aux_classes, cl)
+                items = {**items, **elements}
         return items
 
 
@@ -59,6 +57,7 @@ class DBStorage:
         """" Retrieve items from specific row on table db"""
         items = {}
         for row in self.__session.query(aux_classes[cls]):
+            print(row)
             key = "{}.{}".format(row.__class__.__name__, row.id)
             items[key] = row
         return items
