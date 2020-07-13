@@ -9,6 +9,8 @@ import os
 
 class Place(BaseModel, Base):
     """ A place to stay """
+    
+    """Table relationship many-to-many"""
     __tablename__ = 'places'
     place_amenity = Table('place_amenity', Base.metadata,
             Column('place_id',
@@ -50,10 +52,13 @@ class Place(BaseModel, Base):
 
         @property
         def reviews(self):
+            """
+                Getter for all the reviews that
+                has the place in self
+            """
             from models.review import Review
             reviews_list = []
             objects = storage.all(Review)
-                
             for el in objects.values():
                 if el.place_id == self.id:
                     reviews_list.append(el)
@@ -61,16 +66,24 @@ class Place(BaseModel, Base):
 
         @property
         def amenities(self):
+            """
+                Getter for all the amenities that has the
+                Place objec in self
+            """
             amenities_list = []
             objects = storage.all()
 
             for el in objects:
-               if el.place_id == self.id and obj.__class__.__name__ == 'Amenity':
+                print(el)
+                if el.place_id == self.id and obj.__class__.__name__ == 'Amenity':
                    reviews_list.append(el)
             return reviews_list
         
         @amenities.setter
         def amenities(self, cls):
+            """
+                setter amenities on Place object in self
+            """
             if cls.__class__.__name__ == 'Amenity':
                 self.amenity_ids.append(cls.amenities.id)
 
