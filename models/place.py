@@ -22,7 +22,8 @@ class Place(BaseModel, Base):
                 String(60),
                 ForeignKey('amenities.id'),
                 primary_key=True,
-                nullable=False))
+                nullable=False),
+            extend_existing=True,)
 
 
     city_id = Column(String(60), ForeignKey('cities.id'), nullable=False)
@@ -48,7 +49,7 @@ class Place(BaseModel, Base):
         It will be the FileStorage relationship between
         Place and Review
         """
-        from models.storage import storage
+        import models
 
         @property
         def reviews(self):
@@ -58,7 +59,7 @@ class Place(BaseModel, Base):
             """
             from models.review import Review
             reviews_list = []
-            objects = storage.all(Review)
+            objects = models.storage.all(Review)
             for el in objects.values():
                 if el.place_id == self.id:
                     reviews_list.append(el)
@@ -71,7 +72,7 @@ class Place(BaseModel, Base):
                 Place objec in self
             """
             amenities_list = []
-            objects = storage.all()
+            objects = models.storage.all()
 
             for el in objects:
                 print(el)

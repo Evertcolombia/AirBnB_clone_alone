@@ -64,4 +64,5 @@ class FileStorage:
             to_delete = next((el for el in self.__objects.keys() if el.split(".")[1] == obj.id), None)
             self.__objects.pop(to_delete)
 
-
+    def close(self):
+        self.reload()
