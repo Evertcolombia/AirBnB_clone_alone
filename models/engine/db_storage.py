@@ -44,6 +44,8 @@ class DBStorage:
         }
 
         if cls:
+            if type(cls) != str:
+                cls = cls.__name__
             items = self.retrieve_items(aux_classes, cls)
         else:
             elements = {}
@@ -81,7 +83,10 @@ class DBStorage:
         """ reload data and get Session """
         # create all tables in the db
         Base.metadata.create_all(bind=self.__engine)
-        # create current db session from engine
-        Session = scoped_session(sessionmaker(bind=self.__engine, expire_on_commit=False))
+        session_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        # create current db session from engine using register
+        Session = scoped_session(session_factory)
+        self.__session = Session
 
-        self.__session = Session()
+    def close(self):
+        self.__session.remove()

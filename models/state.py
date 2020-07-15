@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 """ State Module for HBNB project """
+import models
 from models.base_model import BaseModel, Base
 from models.city import City
 from sqlalchemy import Column, String, Integer
@@ -18,9 +19,8 @@ class State(BaseModel, Base):
         name = ""
         @property
         def cities(self):
-            from models.storage import storage
             city_list = []
-            cities = storage.all(City)
+            cities = models.storage.all(City)
             for el in cities.values():
                 if el.state_id == self.id:
                     city_list.append(el)
