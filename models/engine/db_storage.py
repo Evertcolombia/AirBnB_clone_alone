@@ -11,6 +11,12 @@ from models.amenity import Amenity
 import os
 
 
+aux_classes = {
+    'State': State, 'Place': Place, 'City': City,
+    'Amenity': Amenity, 'Review': Review, 'User': User
+}
+
+
 class DBStorage:
 
     __engine = None
@@ -38,28 +44,23 @@ class DBStorage:
             class are (table mappers)
         """
         items = {}
-        aux_classes = {
-            'State': State, 'Place': Place, 'City': City,
-            'Amenity': Amenity, 'Review': Review, 'User': User
-        }
 
         if cls:
             if type(cls) != str:
                 cls = cls.__name__
-            items = self.retrieve_items(aux_classes, cls)
+            items = self.retrieve_items(cls)
         else:
             elements = {}
             for cl in aux_classes:
-                elements = self.retrieve_items(aux_classes, cl)
+                elements = self.retrieve_items(cl)
                 items = {**items, **elements}
         return items
 
 
-    def retrieve_items(self, aux_classes, cls):
+    def retrieve_items(self, cls):
         """" Retrieve items from specific row on table db"""
         items = {}
         for row in self.__session.query(aux_classes[cls]):
-            print(row)
             key = "{}.{}".format(row.__class__.__name__, row.id)
             items[key] = row
         return items
@@ -90,3 +91,24 @@ class DBStorage:
 
     def close(self):
         self.__session.remove()
+
+    def get(self, cls, id):
+        """retrieve one object based on
+            the class name and its ID"""
+        if cls and id:
+            item = self.__session.query(cls).filter(cls.id == id).first()
+            # for keywords epxresision for values thar are not primary key
+            #item = self.__session().query(cls).filter_by(id = id).first()
+            if item: return item
+        return None
+
+    def count(self, cls=None):
+        """Returns the number of objects in storage matching
+        the given class name."""
+        count = 0
+        if cls:
+            count = self.__session.query(cls).count()
+        else: 
+            for cl in aux_classes.values():
+                count += self.__session.query(cl).count()
+        return count

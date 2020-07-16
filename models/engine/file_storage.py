@@ -2,6 +2,20 @@
 """This module defines a class to manage file storage for hbnb clone"""
 import json
 
+from models.base_model import BaseModel
+from models.user import User
+from models.place import Place
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.review import Review
+
+classes = {
+    'BaseModel': BaseModel, 'User': User, 'Place': Place,
+    'State': State, 'City': City, 'Amenity': Amenity,
+    'Review': Review
+}
+
 
 class FileStorage:
     """This class manages storage of hbnb models in JSON format"""
@@ -45,11 +59,6 @@ class FileStorage:
         from models.amenity import Amenity
         from models.review import Review
 
-        classes = {
-                'BaseModel': BaseModel, 'User': User, 'Place': Place,
-                'State': State, 'City': City, 'Amenity': Amenity,
-                'Review': Review
-                }
         try:
             temp = {}
             with open(FileStorage.__file_path, 'r') as f:
@@ -66,3 +75,26 @@ class FileStorage:
 
     def close(self):
         self.reload()
+
+    def get(self, cls, id):
+        """Returns the object based on the
+        class name and its ID"""
+        if cls and id and type(id) == str:
+            if type(cls) == str and cls in classes:
+                key = cls + '.' + id
+            else:
+                key = cls.__name__ + '.' + id
+            item = self.__objects.get(key, None)
+            return item
+        else: return None
+
+    def count(self, cls=None):
+        """Returns the number of objects in storage
+        matching the given class name"""
+        total = 0
+        if cls:
+            total = len(self.all(cls))
+        else: 
+            total = len(self.__objects)
+        return total
+        
