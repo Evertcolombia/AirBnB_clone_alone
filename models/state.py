@@ -9,14 +9,18 @@ import os
 
 class State(BaseModel, Base):
     """ State class """
-    __tablename__ = 'states'
     if os.environ.get("HBNB_TYPE_STORAGE") == 'db':
+        __tablename__ = 'states'
         name = Column(String(128), nullable=False)
-        cities = relationship('City', backref='state', cascade='delete')
+        cities = relationship('City', cascade='all, delete', backref='states')
     else:
-        """ return the current relation ship between state and city
-            for filestorage"""
         name = ""
+    
+    def __init__(self, *args, **kwargs):
+        """initializes state"""
+        super().__init__(*args, **kwargs)
+
+    if os.environ.get("HBNB_TYPE_STORAGE") != 'db':
         @property
         def cities(self):
             city_list = []
