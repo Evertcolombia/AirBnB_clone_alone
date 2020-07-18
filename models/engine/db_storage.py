@@ -43,15 +43,19 @@ class DBStorage:
             of this specific class or all elements en all class
             class are (table mappers)
         """
+        if not self.__session:
+            self.reload()
+
         items = {}
 
+        if type(cls) == str:
+            cls = aux_classes[cls]
+
         if cls:
-            if type(cls) != str:
-                cls = cls.__name__
             items = self.retrieve_items(cls)
         else:
             elements = {}
-            for cl in aux_classes:
+            for cl in aux_classes.values():
                 elements = self.retrieve_items(cl)
                 items = {**items, **elements}
         return items
@@ -60,15 +64,14 @@ class DBStorage:
     def retrieve_items(self, cls):
         """" Retrieve items from specific row on table db"""
         items = {}
-        for row in self.__session.query(aux_classes[cls]):
+        for row in self.__session.query(cls):
             key = "{}.{}".format(row.__class__.__name__, row.id)
             items[key] = row
         return items
     
     def new(self, obj):
-        """ Create new objer row on db """
+        """ Create new object row on db """
         self.__session.add(obj)
-        self.save()
 
     def save(self):
         """ sabe session objects on db"""
@@ -76,9 +79,10 @@ class DBStorage:
 
     def delete(self, obj=None):
         """ deletes an object to db"""
+        if not self.__session:
+            self.reload()
         if obj:
             self.__session.delete(obj)
-            self.save()
 
     def reload(self):
         """ reload data and get Session """
@@ -95,6 +99,9 @@ class DBStorage:
     def get(self, cls, id):
         """retrieve one object based on
             the class name and its ID"""
+        if type(cls) == str:
+            cls = aux_classes[cls]
+
         if cls and id:
             item = self.__session.query(cls).filter(cls.id == id).first()
             # for keywords epxresision for values thar are not primary key
@@ -107,6 +114,8 @@ class DBStorage:
         the given class name."""
         count = 0
         if cls:
+            if type(cls) == str and cls in aux_classes:
+                cls = aux_classes[cls]
             count = self.__session.query(cls).count()
         else: 
             for cl in aux_classes.values():
